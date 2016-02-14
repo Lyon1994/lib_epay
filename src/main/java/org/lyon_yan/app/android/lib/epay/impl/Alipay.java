@@ -1,21 +1,35 @@
 package org.lyon_yan.app.android.lib.epay.impl;
 
+import android.util.Log;
+
+import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
-import com.alipay.api.request.AlipayTradePrecreateRequest;
+import com.alipay.api.request.AlipayTradePayRequest;
+import com.alipay.api.response.AlipayTradePayResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.lyon_yan.app.android.lib.epay.Submit;
 import org.lyon_yan.app.android.lib.epay.core.OrderNo;
-import org.lyon_yan.app.android.lib.epay.entity.request.CancelOrder;
-import org.lyon_yan.app.android.lib.epay.entity.request.CancelOrderRetry;
-import org.lyon_yan.app.android.lib.epay.entity.request.QrCodeCreate;
-import org.lyon_yan.app.android.lib.epay.entity.request.QueryOrder;
-import org.lyon_yan.app.android.lib.epay.entity.request.QueryOrderRetry;
-import org.lyon_yan.app.android.lib.epay.entity.request.RefundOrder;
-import org.lyon_yan.app.android.lib.epay.entity.request.RefundOrderRetry;
-import org.lyon_yan.app.android.lib.epay.entity.request.ScanQRCodePay;
+import org.lyon_yan.app.android.lib.epay.entity.request.RequestCancelOrder;
+import org.lyon_yan.app.android.lib.epay.entity.request.RequestCancelOrderRetry;
+import org.lyon_yan.app.android.lib.epay.entity.request.RequestQrCodeCreate;
+import org.lyon_yan.app.android.lib.epay.entity.request.RequestQueryOrder;
+import org.lyon_yan.app.android.lib.epay.entity.request.RequestQueryOrderRetry;
+import org.lyon_yan.app.android.lib.epay.entity.request.RequestRefundOrder;
+import org.lyon_yan.app.android.lib.epay.entity.request.RequestRefundOrderRetry;
+import org.lyon_yan.app.android.lib.epay.entity.request.RequestScanQRCodePay;
+import org.lyon_yan.app.android.lib.epay.entity.response.ResponseCancelOrder;
+import org.lyon_yan.app.android.lib.epay.entity.response.ResponseCancelOrderRetry;
+import org.lyon_yan.app.android.lib.epay.entity.response.ResponseQrCodeCreate;
+import org.lyon_yan.app.android.lib.epay.entity.response.ResponseQueryOrder;
+import org.lyon_yan.app.android.lib.epay.entity.response.ResponseQueryOrderRetry;
+import org.lyon_yan.app.android.lib.epay.entity.response.ResponseRefundOrder;
+import org.lyon_yan.app.android.lib.epay.entity.response.ResponseRefundOrderRetry;
+import org.lyon_yan.app.android.lib.epay.entity.response.ResponseScanQRCodePay;
+
+import java.text.SimpleDateFormat;
 
 /**
  * 支付宝线下支付
@@ -25,61 +39,83 @@ public class Alipay extends Submit {
     private AlipayClient alipayClient = null;
 
     @Override
-    public Object qrCodeCreate(QrCodeCreate qrCodeCreate) {
+    public ResponseQrCodeCreate qrCodeCreate(RequestQrCodeCreate requestQrCodeCreate) {
         return null;
     }
 
     @Override
-    public String scanQRCodePay(ScanQRCodePay scanQRCodePay) {
-        if (scanQRCodePay.getOut_trade_no() == null)
-            scanQRCodePay.setOut_trade_no(OrderNo.getOrderNo());
-        if (scanQRCodePay.getTimeout_express() == null)
-            scanQRCodePay.setTimeout_express(OrderNo.getOrderTimeExpire(1, 0, 0, 0));
-        AlipayTradePrecreateRequest request = new AlipayTradePrecreateRequest();
+    public ResponseScanQRCodePay scanQRCodePay(RequestScanQRCodePay requestScanQRCodePay) {
+
+        if (requestScanQRCodePay.getOut_trade_no() == null)
+            requestScanQRCodePay.setOut_trade_no(OrderNo.getOrderNo());
+        if (requestScanQRCodePay.getTimeout_express() == null)
+            requestScanQRCodePay.setTimeout_express(OrderNo.getOrderTimeExpire(1, 0, 0, 0));
+        AlipayTradePayRequest request = new AlipayTradePayRequest();
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("out_trade_no", scanQRCodePay.getOut_trade_no());
-            jsonObject.put("total_amount", scanQRCodePay.getTotal_amount());
-            jsonObject.put("subject", scanQRCodePay.getSubject());
-            jsonObject.put("operator_id", scanQRCodePay.getOperator_id());
-            jsonObject.put("terminal_id", scanQRCodePay.getTerminal_id());
-            jsonObject.put("time_expire", scanQRCodePay.getTimeout_express());
+            jsonObject.put("out_trade_no", requestScanQRCodePay.getOut_trade_no());
+            jsonObject.put("total_amount", requestScanQRCodePay.getTotal_amount());
+            jsonObject.put("subject", requestScanQRCodePay.getSubject());
+            jsonObject.put("operator_id", requestScanQRCodePay.getOperator_id());
+            jsonObject.put("terminal_id", requestScanQRCodePay.getTerminal_id());
+            jsonObject.put("time_expire", requestScanQRCodePay.getTimeout_express());
         } catch (JSONException e) {
             e.printStackTrace();
         }
         request.setBizContent(jsonObject.toString());
+        try {
+            AlipayTradePayResponse response = getAlipayClient().execute(request);
+            ResponseScanQRCodePay responseScanQRCodePay = new ResponseScanQRCodePay();
+            responseScanQRCodePay.setOut_trade_no(response.getOutTradeNo());
+            responseScanQRCodePay.setIs_success(response.isSuccess());
+            responseScanQRCodePay.setBuyer_logon_id(response.getBuyerLogonId());
+            responseScanQRCodePay.setBuyer_user_id(response.getBuyerUserId());
+            if (response.getGmtPayment() != null) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                responseScanQRCodePay.setGmt_payment(sdf.format(response.getGmtPayment()));
+            }
+            responseScanQRCodePay.setReceipt_amount(response.getReceiptAmount());
+            responseScanQRCodePay.setStore_name(response.getStoreName());
+            responseScanQRCodePay.setTotal_amount(response.getTotalAmount());
+            responseScanQRCodePay.setTrade_no(response.getTradeNo());
+            Log.v("----------", "response:" + response.getBody());
+            return responseScanQRCodePay;
+        } catch (AlipayApiException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
     @Override
-    public String refundOrder(RefundOrder refundOrder) {
+    public ResponseRefundOrder refundOrder(RequestRefundOrder requestRefundOrder) {
         return null;
     }
 
     @Override
-    public String refundOrderRetry(RefundOrderRetry refundOrderRetry) {
+    public ResponseRefundOrderRetry refundOrderRetry(RequestRefundOrderRetry requestRefundOrderRetry) {
         return null;
     }
 
     @Override
-    public String cancelOrderRetry(CancelOrderRetry cancelOrderRetry) {
+    public ResponseCancelOrderRetry cancelOrderRetry(RequestCancelOrderRetry requestCancelOrderRetry) {
         return null;
     }
 
     @Override
-    public String cancelOrder(CancelOrder cancelOrder) {
+    public ResponseCancelOrder cancelOrder(RequestCancelOrder requestCancelOrder) {
         return null;
     }
 
     @Override
-    public String queryOrderRetry(QueryOrderRetry queryOrderRetry) {
+    public ResponseQueryOrderRetry queryOrderRetry(RequestQueryOrderRetry requestQueryOrderRetry) {
         return null;
     }
 
     @Override
-    public String queryOrder(QueryOrder queryOrder) {
+    public ResponseQueryOrder queryOrder(RequestQueryOrder requestQueryOrder) {
         return null;
     }
+
 
     public static class Config {
         /**

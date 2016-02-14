@@ -1,5 +1,8 @@
 package com.alipay.api.internal.util;
 
+import com.alipay.api.AlipayConstants;
+import com.alipay.api.AlipayResponse;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -12,12 +15,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.alipay.api.AlipayConstants;
-import com.alipay.api.AlipayResponse;
-
 /**
  * 客户端日志
  * 通讯错误格式：time^_^api^_^app^_^ip^_^os^_^sdk^_^url^responseCode
@@ -25,8 +22,8 @@ import com.alipay.api.AlipayResponse;
  */
 public class AlipayLogger {
 
-	private static final Log clog = LogFactory.getLog("sdk.comm.err");
-	private static final Log blog = LogFactory.getLog("sdk.biz.err");
+//	private static final Log clog = LogFactory.getLog("sdk.comm.err");
+//	private static final Log blog = LogFactory.getLog("sdk.biz.err");
 
 	private static String osName = System.getProperties().getProperty("os.name");
 	private static String ip = null;
@@ -153,7 +150,6 @@ public class AlipayLogger {
 		sb.append(rspCode);
 		sb.append("^_^");
 		sb.append((e.getMessage() + "").replaceAll("\r\n", " "));
-		clog.error(sb.toString());
 	}
 
 	private static Map<String, String> parseParam(String contentString) {
@@ -186,7 +182,7 @@ public class AlipayLogger {
 		sb.append(df.format(new Date()));
 		sb.append("^_^");
 		sb.append(rsp);
-		blog.error(sb.toString());
+//		blog.error(sb.toString());
 	}
 
     /**
@@ -222,7 +218,7 @@ public class AlipayLogger {
 		sb.append("^_^");
 		sb.append("Body:");
 		sb.append((String) rt.get("rsp"));
-		blog.error(sb.toString());
+//		blog.error(sb.toString());
 	}
 
 	private static void appendLog(AlipayHashMap map, StringBuilder sb) {

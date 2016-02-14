@@ -1,14 +1,5 @@
 package com.alipay.api.internal.parser.json;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayConstants;
 import com.alipay.api.AlipayRequest;
@@ -22,6 +13,20 @@ import com.alipay.api.internal.util.json.ExceptionErrorListener;
 import com.alipay.api.internal.util.json.JSONReader;
 import com.alipay.api.internal.util.json.JSONValidatingReader;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
+import java.lang.reflect.Field;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 /**
  * JSON格式转换器。
  * 
@@ -32,6 +37,35 @@ public class JsonConverter implements Converter {
 
     public <T extends AlipayResponse> T toResponse(String rsp, Class<T> clazz)
                                                                               throws AlipayApiException {
+        /**
+         * LyonYan
+         */
+        JSONTokener jsonTokener=new JSONTokener(rsp);
+        try {
+            T t=clazz.newInstance();
+            JSONObject jsonObject= (JSONObject) jsonTokener.nextValue();
+            if(jsonObject.length()>0){
+                jsonObject=jsonObject.getJSONObject(jsonObject.keys().next());
+                Class supperClass=clazz.getSuperclass();
+                Field[] fields = clazz.getDeclaredFields();
+                Field[] supperFields = supperClass.getDeclaredFields();
+                for(Field field:supperFields){
+                    if (jsonObject.has())
+                        field.set(t,jsonObject);
+                }
+                for(Field field:fields){
+
+                }
+                jsonObject.has("");
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
         JSONReader reader = new JSONValidatingReader(new ExceptionErrorListener());
         Object rootObj = reader.read(rsp);
         if (rootObj instanceof Map<?, ?>) {

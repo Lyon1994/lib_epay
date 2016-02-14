@@ -1,5 +1,11 @@
 package com.alipay.api.internal.util;
 
+import android.annotation.TargetApi;
+import android.os.Build;
+
+import com.alipay.api.AlipayConstants;
+import com.alipay.api.FileItem;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,9 +31,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-
-import com.alipay.api.AlipayConstants;
-import com.alipay.api.FileItem;
 
 /**
  * 网络工具类。
@@ -141,7 +144,6 @@ public abstract class WebUtils {
      * 执行带文件上传的HTTP POST请求。
      * 
      * @param url 请求地址
-     * @param textParams 文本请求参数
      * @param fileParams 文件请求参数
      * @return 响应字符串
      * @throws IOException
@@ -160,7 +162,6 @@ public abstract class WebUtils {
      * 执行带文件上传的HTTP POST请求。
      * 
      * @param url 请求地址
-     * @param textParams 文本请求参数
      * @param fileParams 文件请求参数
      * @param charset 字符集，如UTF-8, GBK, GB2312
      * @return 响应字符串
@@ -313,6 +314,7 @@ public abstract class WebUtils {
         return rsp;
     }
 
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     private static HttpURLConnection getConnection(URL url, String method, String ctype)
                                                                                         throws IOException {
         HttpURLConnection conn = null;
@@ -329,7 +331,11 @@ public abstract class WebUtils {
             connHttps.setSSLSocketFactory(ctx.getSocketFactory());
             connHttps.setHostnameVerifier(new HostnameVerifier() {
                 public boolean verify(String hostname, SSLSession session) {
-                    return false;//默认认证不通过，进行证书校验。
+//                    return false;//默认认证不通过，进行证书校验。
+                    /**
+                     * LyonYan
+                     */
+                    return true;
                 }
             });
             conn = connHttps;

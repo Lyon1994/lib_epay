@@ -8,7 +8,7 @@ package org.lyon_yan.app.android.lib.epay.entity.request;
  * 若系统商接入，store_id（商户的门店编号）必填，terminal_id(机具终端编号)和seller_id(卖家支付宝用户ID)为选填内容。<br>
  * 如果传入的store_id（商户的门店编号）与门店录入的store_id不匹配，则不能核销该门店发布的优惠活动。<br>
  */
-public class ScanQRCodePay {
+public class RequestScanQRCodePay {
     /**
      * 商户订单号
      */

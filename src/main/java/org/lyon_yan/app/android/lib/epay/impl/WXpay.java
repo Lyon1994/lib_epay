@@ -1,14 +1,22 @@
 package org.lyon_yan.app.android.lib.epay.impl;
 
 import org.lyon_yan.app.android.lib.epay.Submit;
-import org.lyon_yan.app.android.lib.epay.entity.request.CancelOrder;
-import org.lyon_yan.app.android.lib.epay.entity.request.CancelOrderRetry;
-import org.lyon_yan.app.android.lib.epay.entity.request.QrCodeCreate;
-import org.lyon_yan.app.android.lib.epay.entity.request.QueryOrder;
-import org.lyon_yan.app.android.lib.epay.entity.request.QueryOrderRetry;
-import org.lyon_yan.app.android.lib.epay.entity.request.RefundOrder;
-import org.lyon_yan.app.android.lib.epay.entity.request.RefundOrderRetry;
-import org.lyon_yan.app.android.lib.epay.entity.request.ScanQRCodePay;
+import org.lyon_yan.app.android.lib.epay.entity.request.RequestCancelOrder;
+import org.lyon_yan.app.android.lib.epay.entity.request.RequestCancelOrderRetry;
+import org.lyon_yan.app.android.lib.epay.entity.request.RequestQrCodeCreate;
+import org.lyon_yan.app.android.lib.epay.entity.request.RequestQueryOrder;
+import org.lyon_yan.app.android.lib.epay.entity.request.RequestQueryOrderRetry;
+import org.lyon_yan.app.android.lib.epay.entity.request.RequestRefundOrder;
+import org.lyon_yan.app.android.lib.epay.entity.request.RequestRefundOrderRetry;
+import org.lyon_yan.app.android.lib.epay.entity.request.RequestScanQRCodePay;
+import org.lyon_yan.app.android.lib.epay.entity.response.ResponseCancelOrder;
+import org.lyon_yan.app.android.lib.epay.entity.response.ResponseCancelOrderRetry;
+import org.lyon_yan.app.android.lib.epay.entity.response.ResponseQrCodeCreate;
+import org.lyon_yan.app.android.lib.epay.entity.response.ResponseQueryOrder;
+import org.lyon_yan.app.android.lib.epay.entity.response.ResponseQueryOrderRetry;
+import org.lyon_yan.app.android.lib.epay.entity.response.ResponseRefundOrder;
+import org.lyon_yan.app.android.lib.epay.entity.response.ResponseRefundOrderRetry;
+import org.lyon_yan.app.android.lib.epay.entity.response.ResponseScanQRCodePay;
 
 /**
  * 微信线下支付
@@ -16,42 +24,42 @@ import org.lyon_yan.app.android.lib.epay.entity.request.ScanQRCodePay;
  */
 public class WXpay extends Submit {
     @Override
-    public Object qrCodeCreate(QrCodeCreate qrCodeCreate) {
+    public ResponseQrCodeCreate qrCodeCreate(RequestQrCodeCreate requestQrCodeCreate) {
         return null;
     }
 
     @Override
-    public String scanQRCodePay(ScanQRCodePay scanQRCodePay) {
+    public ResponseScanQRCodePay scanQRCodePay(RequestScanQRCodePay requestScanQRCodePay) {
         return null;
     }
 
     @Override
-    public String refundOrder(RefundOrder refundOrder) {
+    public ResponseRefundOrder refundOrder(RequestRefundOrder requestRefundOrder) {
         return null;
     }
 
     @Override
-    public String refundOrderRetry(RefundOrderRetry refundOrderRetry) {
+    public ResponseRefundOrderRetry refundOrderRetry(RequestRefundOrderRetry requestRefundOrderRetry) {
         return null;
     }
 
     @Override
-    public String cancelOrderRetry(CancelOrderRetry cancelOrderRetry) {
+    public ResponseCancelOrderRetry cancelOrderRetry(RequestCancelOrderRetry requestCancelOrderRetry) {
         return null;
     }
 
     @Override
-    public String cancelOrder(CancelOrder cancelOrder) {
+    public ResponseCancelOrder cancelOrder(RequestCancelOrder requestCancelOrder) {
         return null;
     }
 
     @Override
-    public String queryOrderRetry(QueryOrderRetry queryOrderRetry) {
+    public ResponseQueryOrderRetry queryOrderRetry(RequestQueryOrderRetry requestQueryOrderRetry) {
         return null;
     }
 
     @Override
-    public String queryOrder(QueryOrder queryOrder) {
+    public ResponseQueryOrder queryOrder(RequestQueryOrder requestQueryOrder) {
         return null;
     }
 }
