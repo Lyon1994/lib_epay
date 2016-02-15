@@ -1,12 +1,12 @@
 package org.lyon_yan.app.android.lib.epay.impl;
 
-import android.util.Log;
-
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.request.AlipayTradePayRequest;
+import com.alipay.api.request.AlipayTradePrecreateRequest;
 import com.alipay.api.response.AlipayTradePayResponse;
+import com.alipay.api.response.AlipayTradePrecreateResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,12 +40,39 @@ public class Alipay extends Submit {
 
     @Override
     public ResponseQrCodeCreate qrCodeCreate(RequestQrCodeCreate requestQrCodeCreate) {
+        if (requestQrCodeCreate.getOut_trade_no() == null)
+            requestQrCodeCreate.setOut_trade_no(OrderNo.getOrderNo());
+        if (requestQrCodeCreate.getTimeout_express() == null)
+            requestQrCodeCreate.setTimeout_express(OrderNo.getOrderTimeExpire(1, 0, 0, 0));
+        AlipayTradePrecreateRequest request = new AlipayTradePrecreateRequest();
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("out_trade_no", requestQrCodeCreate.getOut_trade_no());
+            jsonObject.put("total_amount", requestQrCodeCreate.getTotal_amount());
+            jsonObject.put("subject", requestQrCodeCreate.getSubject());
+            jsonObject.put("operator_id", requestQrCodeCreate.getOperator_id());
+            jsonObject.put("terminal_id", requestQrCodeCreate.getTerminal_id());
+            jsonObject.put("time_expire", requestQrCodeCreate.getTimeout_express());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        request.setBizContent(jsonObject.toString());
+        try {
+            AlipayTradePrecreateResponse response = getAlipayClient().execute(request);
+            ResponseQrCodeCreate responseQrCodeCreate = new ResponseQrCodeCreate();
+            responseQrCodeCreate.setOut_trade_no(response.getOutTradeNo());
+            responseQrCodeCreate.setIs_success(response.isSuccess());
+            responseQrCodeCreate.setQr_code(response.getQrCode());
+            if ("10000".equals(response.getCode())) responseQrCodeCreate.setIsCodeSuccess(true);
+            return responseQrCodeCreate;
+        } catch (AlipayApiException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
     @Override
     public ResponseScanQRCodePay scanQRCodePay(RequestScanQRCodePay requestScanQRCodePay) {
-
         if (requestScanQRCodePay.getOut_trade_no() == null)
             requestScanQRCodePay.setOut_trade_no(OrderNo.getOrderNo());
         if (requestScanQRCodePay.getTimeout_express() == null)
@@ -57,6 +84,7 @@ public class Alipay extends Submit {
             jsonObject.put("total_amount", requestScanQRCodePay.getTotal_amount());
             jsonObject.put("subject", requestScanQRCodePay.getSubject());
             jsonObject.put("operator_id", requestScanQRCodePay.getOperator_id());
+            jsonObject.put("auth_code",requestScanQRCodePay.getAuth_code());
             jsonObject.put("terminal_id", requestScanQRCodePay.getTerminal_id());
             jsonObject.put("time_expire", requestScanQRCodePay.getTimeout_express());
         } catch (JSONException e) {
@@ -78,7 +106,7 @@ public class Alipay extends Submit {
             responseScanQRCodePay.setStore_name(response.getStoreName());
             responseScanQRCodePay.setTotal_amount(response.getTotalAmount());
             responseScanQRCodePay.setTrade_no(response.getTradeNo());
-            Log.v("----------", "response:" + response.getBody());
+            if ("10000".equals(response.getCode())) responseScanQRCodePay.setIsCodeSuccess(true);
             return responseScanQRCodePay;
         } catch (AlipayApiException e) {
             e.printStackTrace();

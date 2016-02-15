@@ -16,6 +16,7 @@ import com.alipay.api.internal.util.json.JSONValidatingReader;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import org.lyon_yan.app.android.lib.epay.core.KeyUtils;
 
 import java.lang.reflect.Field;
 import java.text.DateFormat;
@@ -34,7 +35,14 @@ import java.util.Map;
  * @since 1.0, Apr 11, 2010
  */
 public class JsonConverter implements Converter {
-
+    /**
+     * 将返回值的结果转化为对象
+     * @param rsp 响应字符串
+     * @param clazz 领域类型
+     * @param <T>
+     * @return
+     * @throws AlipayApiException
+     */
     public <T extends AlipayResponse> T toResponse(String rsp, Class<T> clazz)
                                                                               throws AlipayApiException {
         /**
@@ -50,14 +58,22 @@ public class JsonConverter implements Converter {
                 Field[] fields = clazz.getDeclaredFields();
                 Field[] supperFields = supperClass.getDeclaredFields();
                 for(Field field:supperFields){
-                    if (jsonObject.has())
-                        field.set(t,jsonObject);
+                    field.setAccessible(true);
+                    String k= field.getName();
+                    if (!jsonObject.has(k))
+                        k= KeyUtils.getLowerCaseKey(k);
+                    if (jsonObject.has(k))
+                        field.set(t,jsonObject.getString(k));
                 }
                 for(Field field:fields){
-
+                    field.setAccessible(true);
+                    String k= field.getName();
+                    if (!jsonObject.has(k))
+                        k= KeyUtils.getLowerCaseKey(k);
+                    if (jsonObject.has(k))
+                        field.set(t,jsonObject.getString(k));
                 }
-                jsonObject.has("");
-
+                return t;
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -66,6 +82,8 @@ public class JsonConverter implements Converter {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
+
+        /**the end*/
         JSONReader reader = new JSONValidatingReader(new ExceptionErrorListener());
         Object rootObj = reader.read(rsp);
         if (rootObj instanceof Map<?, ?>) {

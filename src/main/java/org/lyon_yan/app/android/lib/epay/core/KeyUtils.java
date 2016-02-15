@@ -51,4 +51,22 @@ public class KeyUtils {
         }
         return null;
     }
+
+    /**
+     * aBc to a_bc
+     *
+     * @param k
+     * @return
+     */
+    public static String getLowerCaseKey(String k) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < k.length(); i++) {
+            char c = k.charAt(i);
+            if (Character.isUpperCase(c)) {
+                stringBuilder.append(("_" + c).toLowerCase());
+            } else
+                stringBuilder.append(c);
+        }
+        return stringBuilder.toString();
+    }
 }
