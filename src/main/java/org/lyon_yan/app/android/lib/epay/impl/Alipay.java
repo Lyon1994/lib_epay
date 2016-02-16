@@ -1,16 +1,23 @@
 package org.lyon_yan.app.android.lib.epay.impl;
 
+import android.util.Log;
+
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.domain.TradeFundBill;
+import com.alipay.api.request.AlipayTradeCancelRequest;
 import com.alipay.api.request.AlipayTradePayRequest;
 import com.alipay.api.request.AlipayTradePrecreateRequest;
+import com.alipay.api.request.AlipayTradeQueryRequest;
+import com.alipay.api.response.AlipayTradeCancelResponse;
 import com.alipay.api.response.AlipayTradePayResponse;
 import com.alipay.api.response.AlipayTradePrecreateResponse;
+import com.alipay.api.response.AlipayTradeQueryResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.lyon_yan.app.android.lib.epay.Submit;
+import org.lyon_yan.app.android.lib.epay.EpayRequestSubmit;
 import org.lyon_yan.app.android.lib.epay.core.OrderNo;
 import org.lyon_yan.app.android.lib.epay.entity.request.RequestCancelOrder;
 import org.lyon_yan.app.android.lib.epay.entity.request.RequestCancelOrderRetry;
@@ -20,6 +27,7 @@ import org.lyon_yan.app.android.lib.epay.entity.request.RequestQueryOrderRetry;
 import org.lyon_yan.app.android.lib.epay.entity.request.RequestRefundOrder;
 import org.lyon_yan.app.android.lib.epay.entity.request.RequestRefundOrderRetry;
 import org.lyon_yan.app.android.lib.epay.entity.request.RequestScanQRCodePay;
+import org.lyon_yan.app.android.lib.epay.entity.response.EpayTradeFundBill;
 import org.lyon_yan.app.android.lib.epay.entity.response.ResponseCancelOrder;
 import org.lyon_yan.app.android.lib.epay.entity.response.ResponseCancelOrderRetry;
 import org.lyon_yan.app.android.lib.epay.entity.response.ResponseQrCodeCreate;
@@ -30,12 +38,14 @@ import org.lyon_yan.app.android.lib.epay.entity.response.ResponseRefundOrderRetr
 import org.lyon_yan.app.android.lib.epay.entity.response.ResponseScanQRCodePay;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 支付宝线下支付
  * Created by yanni on 2016/2/14.
  */
-public class Alipay extends Submit {
+public class Alipay extends EpayRequestSubmit {
     private AlipayClient alipayClient = null;
 
     @Override
@@ -60,9 +70,14 @@ public class Alipay extends Submit {
         try {
             AlipayTradePrecreateResponse response = getAlipayClient().execute(request);
             ResponseQrCodeCreate responseQrCodeCreate = new ResponseQrCodeCreate();
+            responseQrCodeCreate.setMain_class_name(getMainClassName());
             responseQrCodeCreate.setOut_trade_no(response.getOutTradeNo());
             responseQrCodeCreate.setIs_success(response.isSuccess());
             responseQrCodeCreate.setQr_code(response.getQrCode());
+            responseQrCodeCreate.setCode(response.getCode());
+            responseQrCodeCreate.setSub_code(response.getSubCode());
+            responseQrCodeCreate.setMsg(response.getMsg());
+            responseQrCodeCreate.setSub_desc(response.getSubMsg());
             if ("10000".equals(response.getCode())) responseQrCodeCreate.setIsCodeSuccess(true);
             return responseQrCodeCreate;
         } catch (AlipayApiException e) {
@@ -94,6 +109,7 @@ public class Alipay extends Submit {
         try {
             AlipayTradePayResponse response = getAlipayClient().execute(request);
             ResponseScanQRCodePay responseScanQRCodePay = new ResponseScanQRCodePay();
+            responseScanQRCodePay.setMain_class_name(getMainClassName());
             responseScanQRCodePay.setOut_trade_no(response.getOutTradeNo());
             responseScanQRCodePay.setIs_success(response.isSuccess());
             responseScanQRCodePay.setBuyer_logon_id(response.getBuyerLogonId());
@@ -106,6 +122,10 @@ public class Alipay extends Submit {
             responseScanQRCodePay.setStore_name(response.getStoreName());
             responseScanQRCodePay.setTotal_amount(response.getTotalAmount());
             responseScanQRCodePay.setTrade_no(response.getTradeNo());
+            responseScanQRCodePay.setCode(response.getCode());
+            responseScanQRCodePay.setSub_code(response.getSubCode());
+            responseScanQRCodePay.setMsg(response.getMsg());
+            responseScanQRCodePay.setSub_desc(response.getSubMsg());
             if ("10000".equals(response.getCode())) responseScanQRCodePay.setIsCodeSuccess(true);
             return responseScanQRCodePay;
         } catch (AlipayApiException e) {
@@ -131,6 +151,31 @@ public class Alipay extends Submit {
 
     @Override
     public ResponseCancelOrder cancelOrder(RequestCancelOrder requestCancelOrder) {
+        AlipayTradeCancelRequest request = new AlipayTradeCancelRequest();
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("out_trade_no", requestCancelOrder.getOut_trade_no());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        request.setBizContent(jsonObject.toString());
+        try {
+            AlipayTradeCancelResponse response = getAlipayClient().execute(request);
+            ResponseCancelOrder responseCancelOrder = new ResponseCancelOrder();
+            responseCancelOrder.setMain_class_name(getMainClassName());
+            responseCancelOrder.setOut_trade_no(response.getOutTradeNo());
+            responseCancelOrder.setIs_success(response.isSuccess());
+            responseCancelOrder.setTrade_no(response.getTradeNo());
+            responseCancelOrder.setCode(response.getCode());
+            responseCancelOrder.setSub_code(response.getSubCode());
+            responseCancelOrder.setMsg(response.getMsg());
+            responseCancelOrder.setSub_desc(response.getSubMsg());
+            if ("10000".equals(response.getCode())) responseCancelOrder.setIsCodeSuccess(true);
+            if ("refund".equals(response.getAction())) responseCancelOrder.setIs_refund(true);
+            return responseCancelOrder;
+        } catch (AlipayApiException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
@@ -141,7 +186,75 @@ public class Alipay extends Submit {
 
     @Override
     public ResponseQueryOrder queryOrder(RequestQueryOrder requestQueryOrder) {
+        AlipayTradeQueryRequest request = new AlipayTradeQueryRequest();
+        JSONObject jsonObject = new JSONObject();
+        try {
+            if (requestQueryOrder.getOut_trade_no()!=null)
+            jsonObject.put("out_trade_no", requestQueryOrder.getOut_trade_no());
+            if (requestQueryOrder.getTrade_no()!=null)
+                jsonObject.put("trade_no", requestQueryOrder.getTrade_no());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        request.setBizContent(jsonObject.toString());
+        try {
+            AlipayTradeQueryResponse response = getAlipayClient().execute(request);
+            Log.e("......",".......:"+response.getBody());
+            ResponseQueryOrder responseQueryOrder = new ResponseQueryOrder();
+            responseQueryOrder.setMain_class_name(getMainClassName());
+            responseQueryOrder.setTrade_no(response.getTradeNo());
+            responseQueryOrder.setOut_trade_no(response.getOutTradeNo());
+            responseQueryOrder.setBuyer_user_id(response.getBuyerUserId());
+            responseQueryOrder.setBuyer_logon_id(response.getBuyerLogonId());
+            responseQueryOrder.setTrade_status(response.getTradeStatus());
+            responseQueryOrder.setTotal_amount(response.getTotalAmount());
+            responseQueryOrder.setReceipt_amount(response.getReceiptAmount());
+            responseQueryOrder.setBuyer_pay_amount(response.getBuyerPayAmount());
+            if (response.getSendPayDate() != null) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                responseQueryOrder.setSend_pay_date(sdf.format(response.getSendPayDate()));
+            }
+            responseQueryOrder.setTerminal_id(response.getTerminalId());
+            responseQueryOrder.setStore_id(response.getStoreId());
+            responseQueryOrder.setStore_name(response.getStoreName());
+            if(response.getFundBillList()!=null) {
+                List<EpayTradeFundBill> epayTradeFundBills = new ArrayList<>();
+                for (TradeFundBill tradeFundBill : response.getFundBillList()) {
+                    epayTradeFundBills.add(new EpayTradeFundBill(tradeFundBill.getAmount(), tradeFundBill.getFundChannel()));
+                }
+                responseQueryOrder.setFund_bill_list(epayTradeFundBills);
+            }
+            responseQueryOrder.setIs_success(response.isSuccess());
+            responseQueryOrder.setCode(response.getCode());
+            responseQueryOrder.setSub_code(response.getSubCode());
+            responseQueryOrder.setMsg(response.getMsg());
+            responseQueryOrder.setSub_desc(response.getSubMsg());
+            if ("10000".equals(response.getCode())) responseQueryOrder.setIsCodeSuccess(true);
+            if (response.getTradeStatus()!=null)
+                switch (response.getTradeStatus()){
+                    case "WAIT_BUYER_PAY":
+                        responseQueryOrder.setIsWaitBuyerPay(true);
+                        break;
+                    case "TRADE_CLOSED":
+                        responseQueryOrder.setIsTradeColsed(true);
+                        break;
+                    case "TRADE_SUCCESS":
+                        responseQueryOrder.setIsTradeSuccess(true);
+                        break;
+                    case "TRADE_FINISHED":
+                        responseQueryOrder.setIsTradeFinished(true);
+                        break;
+                }
+            return responseQueryOrder;
+        } catch (AlipayApiException e) {
+            e.printStackTrace();
+        }
         return null;
+    }
+
+    @Override
+    public String getMainClassName() {
+        return getClass().getName();
     }
 
 

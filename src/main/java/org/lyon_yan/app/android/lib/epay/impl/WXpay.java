@@ -1,6 +1,6 @@
 package org.lyon_yan.app.android.lib.epay.impl;
 
-import org.lyon_yan.app.android.lib.epay.Submit;
+import org.lyon_yan.app.android.lib.epay.EpayRequestSubmit;
 import org.lyon_yan.app.android.lib.epay.entity.request.RequestCancelOrder;
 import org.lyon_yan.app.android.lib.epay.entity.request.RequestCancelOrderRetry;
 import org.lyon_yan.app.android.lib.epay.entity.request.RequestQrCodeCreate;
@@ -22,7 +22,7 @@ import org.lyon_yan.app.android.lib.epay.entity.response.ResponseScanQRCodePay;
  * 微信线下支付
  * Created by yanni on 2016/2/14.
  */
-public class WXpay extends Submit {
+public class WXpay extends EpayRequestSubmit {
     @Override
     public ResponseQrCodeCreate qrCodeCreate(RequestQrCodeCreate requestQrCodeCreate) {
         return null;
@@ -60,6 +60,11 @@ public class WXpay extends Submit {
 
     @Override
     public ResponseQueryOrder queryOrder(RequestQueryOrder requestQueryOrder) {
+        return null;
+    }
+
+    @Override
+    public String getMainClassName() {
         return null;
     }
 }
