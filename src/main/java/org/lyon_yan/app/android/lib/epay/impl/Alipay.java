@@ -102,6 +102,7 @@ public class Alipay extends EpayRequestSubmit {
             jsonObject.put("auth_code",requestScanQRCodePay.getAuth_code());
             jsonObject.put("terminal_id", requestScanQRCodePay.getTerminal_id());
             jsonObject.put("time_expire", requestScanQRCodePay.getTimeout_express());
+            jsonObject.put("scene","bar_code");
         } catch (JSONException e) {
             e.printStackTrace();
         }

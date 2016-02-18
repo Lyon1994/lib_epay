@@ -13,10 +13,12 @@ import com.alipay.api.internal.util.json.ExceptionErrorListener;
 import com.alipay.api.internal.util.json.JSONReader;
 import com.alipay.api.internal.util.json.JSONValidatingReader;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.lyon_yan.app.android.lib.epay.core.KeyUtils;
+import org.lyon_yan.app.android.lib_lyon_yan_utils.refeclt.RefecltUtils;
 
 import java.lang.reflect.Field;
 import java.text.DateFormat;
@@ -30,48 +32,74 @@ import java.util.Map;
 
 /**
  * JSON格式转换器。
- * 
+ *
  * @author carver.gu
  * @since 1.0, Apr 11, 2010
  */
 public class JsonConverter implements Converter {
     /**
      * 将返回值的结果转化为对象
-     * @param rsp 响应字符串
+     *
+     * @param rsp   响应字符串
      * @param clazz 领域类型
      * @param <T>
      * @return
      * @throws AlipayApiException
      */
     public <T extends AlipayResponse> T toResponse(String rsp, Class<T> clazz)
-                                                                              throws AlipayApiException {
+            throws AlipayApiException {
         /**
          * LyonYan
          */
-        JSONTokener jsonTokener=new JSONTokener(rsp);
+        JSONTokener jsonTokener = new JSONTokener(rsp);
         try {
-            T t=clazz.newInstance();
-            JSONObject jsonObject= (JSONObject) jsonTokener.nextValue();
-            if(jsonObject.length()>0){
-                jsonObject=jsonObject.getJSONObject(jsonObject.keys().next());
-                Class supperClass=clazz.getSuperclass();
+            T t = clazz.newInstance();
+            JSONObject jsonObject = (JSONObject) jsonTokener.nextValue();
+            if (jsonObject.length() > 0) {
+                if (jsonObject.has("sign")) jsonObject.remove("sign");
+                jsonObject = jsonObject.getJSONObject(jsonObject.keys().next());
+                Class supperClass = clazz.getSuperclass();
                 Field[] fields = clazz.getDeclaredFields();
                 Field[] supperFields = supperClass.getDeclaredFields();
-                for(Field field:supperFields){
+                for (Field field : supperFields) {
                     field.setAccessible(true);
-                    String k= field.getName();
+                    String k = field.getName();
                     if (!jsonObject.has(k))
-                        k= KeyUtils.getLowerCaseKey(k);
+                        k = KeyUtils.getLowerCaseKey(k);
                     if (jsonObject.has(k))
-                        field.set(t,jsonObject.getString(k));
+                        field.set(t, jsonObject.getString(k));
                 }
-                for(Field field:fields){
+                for (Field field : fields) {
                     field.setAccessible(true);
-                    String k= field.getName();
+                    String k = field.getName();
                     if (!jsonObject.has(k))
-                        k= KeyUtils.getLowerCaseKey(k);
-                    if (jsonObject.has(k))
-                        field.set(t,jsonObject.getString(k));
+                        k = KeyUtils.getLowerCaseKey(k);
+                    if (jsonObject.has(k)) {
+                        if (List.class.isAssignableFrom(field.getType())) {
+                            Class returnTypeClass = RefecltUtils.getGenericClassFromType(field);
+                            List list = new ArrayList();
+                            JSONArray jsonArray = jsonObject.getJSONArray(k);
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                JSONObject jsonObject1 = jsonArray.getJSONObject(i);
+                                Field[] fields1 = returnTypeClass.getDeclaredFields();
+                                for (Field field1 : fields1) {
+                                    field1.setAccessible(true);
+                                    String k1 = field1.getName();
+                                    Object o = returnTypeClass.newInstance();
+                                    if (!jsonObject.has(k1))
+                                        k1 = KeyUtils.getLowerCaseKey(k1);
+                                    if (jsonObject1.has(k1))
+                                        field1.set(o, jsonObject1.getString(k1));
+                                    list.add(o);
+                                }
+                            }
+                            field.set(t, list);
+                        }else if(Date.class.isAssignableFrom(field.getType())){
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            field.set(t, sdf.parse(jsonObject.getString(k)));
+                        }else
+                            field.set(t, jsonObject.getString(k));
+                    }
                 }
                 return t;
             }
@@ -80,6 +108,8 @@ public class JsonConverter implements Converter {
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
             e.printStackTrace();
         }
 
@@ -101,12 +131,11 @@ public class JsonConverter implements Converter {
 
     /**
      * 把JSON格式的数据转换为对象。
-     * 
-     * @param <T> 泛型领域对象
-     * @param json JSON格式的数据
+     *
+     * @param <T>   泛型领域对象
+     * @param json  JSON格式的数据
      * @param clazz 泛型领域类型
      * @return 领域对象
-     * @throws TopException
      */
     public <T> T fromJson(final Map<?, ?> json, Class<T> clazz) throws AlipayApiException {
         return Converters.convert(clazz, new Reader() {
@@ -129,7 +158,7 @@ public class JsonConverter implements Converter {
             }
 
             public List<?> getListObjects(Object listName, Object itemName, Class<?> subType)
-                                                                                             throws AlipayApiException {
+                    throws AlipayApiException {
                 List<Object> listObjs = null;
 
                 Object listTmp = json.get(listName);
@@ -151,7 +180,7 @@ public class JsonConverter implements Converter {
             }
 
             private List<Object> getListObjectsInner(Class<?> subType, Object itemTmp)
-                                                                                      throws AlipayApiException {
+                    throws AlipayApiException {
                 List<Object> listObjs;
                 listObjs = new ArrayList<Object>();
                 List<?> tmpList = (List<?>) itemTmp;
@@ -187,11 +216,11 @@ public class JsonConverter implements Converter {
         });
     }
 
-    /** 
+    /**
      * @see com.alipay.api.internal.mapping.Converter#getSignItem(com.alipay.api.AlipayRequest, com.alipay.api.AlipayResponse)
      */
     public SignItem getSignItem(AlipayRequest<?> request, AlipayResponse response)
-                                                                                  throws AlipayApiException {
+            throws AlipayApiException {
 
         String body = response.getBody();
 
@@ -215,7 +244,6 @@ public class JsonConverter implements Converter {
     }
 
     /**
-     * 
      * @param request
      * @param body
      * @return
@@ -224,7 +252,7 @@ public class JsonConverter implements Converter {
 
         // 加签源串起点
         String rootNode = request.getApiMethodName().replace('.', '_')
-                          + AlipayConstants.RESPONSE_SUFFIX;
+                + AlipayConstants.RESPONSE_SUFFIX;
         String errorRootNode = AlipayConstants.ERROR_RESPONSE;
 
         int indexOfRootNode = body.indexOf(rootNode);
@@ -245,9 +273,8 @@ public class JsonConverter implements Converter {
     }
 
     /**
-     *   获取签名源串内容
-     *    
-     * 
+     * 获取签名源串内容
+     *
      * @param body
      * @param rootNode
      * @param indexOfRootNode
@@ -272,7 +299,7 @@ public class JsonConverter implements Converter {
 
     /**
      * 获取签名
-     * 
+     *
      * @param body
      * @return
      */
