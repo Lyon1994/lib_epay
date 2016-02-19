@@ -107,6 +107,7 @@ public class Alipay extends EpayRequestSubmit {
             e.printStackTrace();
         }
         request.setBizContent(jsonObject.toString());
+        Log.d("支付宝扫码支付", "部分请求值：" + request.getTextParams());
         try {
             AlipayTradePayResponse response = getAlipayClient().execute(request);
             ResponseScanQRCodePay responseScanQRCodePay = new ResponseScanQRCodePay();
@@ -119,6 +120,7 @@ public class Alipay extends EpayRequestSubmit {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 responseScanQRCodePay.setGmt_payment(sdf.format(response.getGmtPayment()));
             }
+            Log.d("支付宝扫码支付","返回值："+response.getBody());
             responseScanQRCodePay.setReceipt_amount(response.getReceiptAmount());
             responseScanQRCodePay.setStore_name(response.getStoreName());
             responseScanQRCodePay.setTotal_amount(response.getTotalAmount());
