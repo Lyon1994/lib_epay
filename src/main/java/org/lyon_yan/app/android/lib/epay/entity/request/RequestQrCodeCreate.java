@@ -6,53 +6,65 @@ package org.lyon_yan.app.android.lib.epay.entity.request;
  */
 public class RequestQrCodeCreate {
     /**
-     *商户订单号
+     * 商户订单号
      */
     private String out_trade_no;
     /**
-     *卖家用户ID
+     * 卖家用户ID
      */
     private String seller_id;
     /**
-     *订单总金额
+     * 订单总金额
      */
     private String total_amount;
     /**
-     *订单标题
+     * 订单标题
      */
     private String subject;
     /**
-     *订单描述
+     * 订单描述
      */
     private String body;
     /**
-     *商品明细列表
+     * 商品明细列表
      */
     private String goods_detail;
     /**
-     *商户操作员编号
+     * 商户操作员编号
      */
     private String operator_id;
     /**
-     *商户门店编号
+     * 商户门店编号
      */
     private String store_id;
     /**
-     *机具终端编号
+     * 机具终端编号
      */
     private String terminal_id;
     /**
-     *扩展参数
+     * 扩展参数
      */
     private String extend_params;
     /**
-     *支付超时时间表达式
+     * 支付超时时间表达式
      */
     private String timeout_express;
     /**
-     *分账信息
+     * 分账信息
      */
     private String royalty_info;
+    /**
+     * 该参数作为系统商返佣数据提取的依据，请填写系统商签约协议的PID。
+     */
+    private String sys_service_provider_id;
+
+    public String getSys_service_provider_id() {
+        return sys_service_provider_id;
+    }
+
+    public void setSys_service_provider_id(String sys_service_provider_id) {
+        this.sys_service_provider_id = sys_service_provider_id;
+    }
 
     public String getOut_trade_no() {
         return out_trade_no;

@@ -8,7 +8,7 @@ package org.lyon_yan.app.android.lib.epay.entity.request;
  * 若系统商接入，store_id（商户的门店编号）必填，terminal_id(机具终端编号)和seller_id(卖家支付宝用户ID)为选填内容。<br>
  * 如果传入的store_id（商户的门店编号）与门店录入的store_id不匹配，则不能核销该门店发布的优惠活动。<br>
  */
-public class RequestScanQRCodePay  {
+public class RequestScanQRCodePay {
     /**
      * 商户订单号
      */
@@ -65,6 +65,18 @@ public class RequestScanQRCodePay  {
      * 分账信息
      */
     private String royalty_info;
+    /**
+     * 该参数作为系统商返佣数据提取的依据，请填写系统商签约协议的PID。
+     */
+    private String sys_service_provider_id;
+
+    public String getSys_service_provider_id() {
+        return sys_service_provider_id;
+    }
+
+    public void setSys_service_provider_id(String sys_service_provider_id) {
+        this.sys_service_provider_id = sys_service_provider_id;
+    }
 
     public String getOut_trade_no() {
         return out_trade_no;
