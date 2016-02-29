@@ -25,7 +25,21 @@ import org.lyon_yan.app.android.lib.epay.entity.response.ResponseScanQRCodePay;
  */
 public abstract class EpayRequestSubmit {
     /**
+     * 订单前缀
+     */
+    private String trade_order_no_prefx = "";
+
+    public String getTrade_order_no_prefx() {
+        return trade_order_no_prefx;
+    }
+
+    public void setTrade_order_no_prefx(String trade_order_no_prefx) {
+        this.trade_order_no_prefx = trade_order_no_prefx;
+    }
+
+    /**
      * 根据类名获取支付方式类别
+     *
      * @param className
      * @return
      */
@@ -99,6 +113,7 @@ public abstract class EpayRequestSubmit {
      * @return
      */
     public abstract ResponseQueryOrder queryOrder(RequestQueryOrder requestQueryOrder);
+
     /**
      * 获取支付方式主类
      *

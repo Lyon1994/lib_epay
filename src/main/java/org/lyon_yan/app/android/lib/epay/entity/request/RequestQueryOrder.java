@@ -29,4 +29,11 @@ public class RequestQueryOrder  {
     public void setOut_trade_no(String out_trade_no) {
         this.out_trade_no = out_trade_no;
     }
+
+    public RequestQueryOrder() {
+    }
+
+    public RequestQueryOrder(String out_trade_no) {
+        this.out_trade_no = out_trade_no;
+    }
 }

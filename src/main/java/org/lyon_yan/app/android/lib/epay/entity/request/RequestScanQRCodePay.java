@@ -189,4 +189,7 @@ public class RequestScanQRCodePay {
     public void setRoyalty_info(String royalty_info) {
         this.royalty_info = royalty_info;
     }
+
+
+
 }
