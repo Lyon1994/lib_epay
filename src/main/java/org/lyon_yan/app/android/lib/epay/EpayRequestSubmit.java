@@ -121,4 +121,10 @@ public abstract class EpayRequestSubmit {
      */
     public abstract String getMainClassName();
 
+    /**
+     * 是否可以退款
+     *
+     * @return
+     */
+    public abstract boolean is_can_refund();
 }

@@ -10,10 +10,12 @@ import com.alipay.api.request.AlipayTradeCancelRequest;
 import com.alipay.api.request.AlipayTradePayRequest;
 import com.alipay.api.request.AlipayTradePrecreateRequest;
 import com.alipay.api.request.AlipayTradeQueryRequest;
+import com.alipay.api.request.AlipayTradeRefundRequest;
 import com.alipay.api.response.AlipayTradeCancelResponse;
 import com.alipay.api.response.AlipayTradePayResponse;
 import com.alipay.api.response.AlipayTradePrecreateResponse;
 import com.alipay.api.response.AlipayTradeQueryResponse;
+import com.alipay.api.response.AlipayTradeRefundResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -175,6 +177,43 @@ public class Alipay extends EpayRequestSubmit {
 
     @Override
     public ResponseRefundOrder refundOrder(RequestRefundOrder requestRefundOrder) {
+        AlipayTradeRefundRequest request = new AlipayTradeRefundRequest();
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("trade_no", requestRefundOrder.getTrade_no());
+            jsonObject.put("refund_amount", requestRefundOrder.getRefund_amount());
+            if (requestRefundOrder.getStore_id()!=null&&requestRefundOrder.getStore_id().length()>0){
+                jsonObject.put("store_id",requestRefundOrder.getStore_id());
+            }
+            if (requestRefundOrder.getOut_request_no()!=null&&requestRefundOrder.getOut_request_no().length()>0){
+                jsonObject.put("out_request_no",requestRefundOrder.getOut_request_no());
+            }
+            if (requestRefundOrder.getRefund_reason()!=null&&requestRefundOrder.getRefund_reason().length()>0){
+                jsonObject.put("refund_reason",requestRefundOrder.getRefund_reason());
+            }
+            if (requestRefundOrder.getTerminal_id()!=null&&requestRefundOrder.getTerminal_id().length()>0){
+                jsonObject.put("terminal_id",requestRefundOrder.getTerminal_id());
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        request.setBizContent(jsonObject.toString());
+        try {
+            AlipayTradeRefundResponse response = getAlipayClient().execute(request);
+            ResponseRefundOrder responseRefundOrder = new ResponseRefundOrder();
+            responseRefundOrder.setMain_class_name(getMainClassName());
+            responseRefundOrder.setOut_trade_no(response.getOutTradeNo());
+            responseRefundOrder.setIs_success(response.isSuccess());
+            responseRefundOrder.setTrade_no(response.getTradeNo());
+            responseRefundOrder.setCode(response.getCode());
+            responseRefundOrder.setSub_code(response.getSubCode());
+            responseRefundOrder.setMsg(response.getMsg());
+            responseRefundOrder.setSub_desc(response.getSubMsg());
+            if ("10000".equals(response.getCode())) responseRefundOrder.setIsCodeSuccess(true);
+            return responseRefundOrder;
+        } catch (AlipayApiException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
@@ -294,6 +333,11 @@ public class Alipay extends EpayRequestSubmit {
     @Override
     public String getMainClassName() {
         return getClass().getName();
+    }
+
+    @Override
+    public boolean is_can_refund() {
+        return true;
     }
 
     private AlipayClient createAlipayClient() {

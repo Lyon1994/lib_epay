@@ -67,4 +67,9 @@ public class WXpay extends EpayRequestSubmit {
     public String getMainClassName() {
         return null;
     }
+
+    @Override
+    public boolean is_can_refund() {
+        return false;
+    }
 }
