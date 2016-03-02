@@ -1,6 +1,7 @@
 package org.lyon_yan.app.android.lib.epay;
 
 import org.lyon_yan.app.android.lib.epay.impl.config.AlipayConfig;
+import org.lyon_yan.app.android.lib.epay.impl.config.WXpayConfig;
 
 /**
  * 支付参数配置
@@ -55,5 +56,13 @@ public class EpayConfig {
         // TODO !!!! 注：该公钥为测试账号公钥 开发者必须设置自己的公钥 ,否则会存在安全隐患
         AlipayConfig.PUBLIC_KEY = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDcskDEloA6mYF2bmE8/N9J0yCOORWnteM2ObxKlOz3L45jicZoF5LfXH//oYEBNpOn5k90re5whtmSe/dl7mhcKSESarLc/2FZUnH2gu+S9n/bB7EAZMLFLHF+fsJZnhX68Vjxh7olYQ9V86pmNJsQLfklwykgMBffU01RKY+qMwIDAQAB";
         AlipayConfig.ALIPAY_GATEWAY = "https://openapi.alipay.com/gateway.do";
+    }
+
+    /**
+     * 微信配置
+     */
+    public static void initWXpayConfig(String value_Appid, String value_Mchid, String value_wkey, String value_sub_mch_id, String notify_url) {
+        WXpayConfig.notify_url = notify_url;
+        WXpayConfig.init(value_Appid, value_Mchid, value_wkey, value_sub_mch_id);
     }
 }

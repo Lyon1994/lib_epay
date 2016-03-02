@@ -3,14 +3,19 @@ package org.lyon_yan.app.android.lib.epay;
 /**
  * Created by yanni on 2016/2/14.
  */
-public abstract class EpayResponseCode{
+public abstract class EpayResponseCode {
     private String code;
     private String msg;
     private String sub_code;
     private String sub_desc;
+    /**
+     * 是否结果成功
+     */
     private boolean isCodeSuccess;
-
-    private boolean is_success=false;
+    /**
+     * 是否访问成功
+     */
+    private boolean is_success = false;
 
     private String main_class_name;
 
@@ -21,6 +26,7 @@ public abstract class EpayResponseCode{
     public void setMain_class_name(String main_class_name) {
         this.main_class_name = main_class_name;
     }
+
     public boolean is_success() {
         return is_success;
     }
